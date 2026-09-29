@@ -4,7 +4,7 @@ const fs = require('fs');
 const path = require('path');
 const axios = require('axios');
 
-let currentWebhookUrl = process.env.WEBHOOK_URL || 'https://season4property.qloudsoft.in/api/webhooks/whatsapp/incoming';
+let currentWebhookUrl = process.env.WEBHOOK_URL || 'https://farooqi.qloudsoft.in/api/webhooks/whatsapp/incoming';
 const WEBHOOK_SECRET = process.env.WEBHOOK_SECRET;
 
 // Helper to send webhook (optional — if not set, messages are queued for polling)
@@ -58,7 +58,7 @@ class WhatsAppService {
             if (this.sock) {
                 try {
                     this.sock.end(undefined);
-                } catch (e) {}
+                } catch (e) { }
                 this.sock = null;
             }
         }
@@ -90,13 +90,13 @@ class WhatsAppService {
                     const statusCode = lastDisconnect?.error?.output?.statusCode;
                     const isLoggedOut = statusCode === DisconnectReason.loggedOut || statusCode === 401;
                     const shouldReconnect = !isLoggedOut && statusCode !== DisconnectReason.connectionReplaced;
-                    
+
                     console.log(`[WhatsApp API] Connection closed. StatusCode: ${statusCode} | Reason: ${lastDisconnect?.error?.message || 'Disconnected/Logged out'} | Reconnect: ${shouldReconnect}`);
-                    
+
                     if (this.sock) {
                         try {
                             this.sock.ev.removeAllListeners();
-                        } catch (e) {}
+                        } catch (e) { }
                     }
 
                     if (shouldReconnect) {
@@ -132,14 +132,14 @@ class WhatsAppService {
                             if (this.sock && this.sock.user && this.sock.user.id) {
                                 const rawId = this.sock.user.id.split(':')[0].split('@')[0];
                                 const selfJid = `${rawId}@s.whatsapp.net`;
-                                const confirmationMessage = 
+                                const confirmationMessage =
                                     `✅ *Device Connected Successfully!*\n\n` +
                                     `📱 *Phone Number:* +${rawId}\n` +
                                     `⚡ *Status:* Qloudflow WhatsApp Automation Suite Active\n` +
                                     `🤖 *Smart Auto-Responder:* Online & Ready\n` +
                                     `🕒 *Connected At:* ${new Date().toLocaleString()}\n\n` +
                                     `Your WhatsApp account is now linked. Incoming customer inquiries will be automatically handled.`;
-                                
+
                                 console.log(`Sending connection confirmation message to ${selfJid}...`);
                                 await this.sock.sendMessage(selfJid, { text: confirmationMessage });
                                 console.log('Connection confirmation message sent successfully!');
@@ -158,7 +158,7 @@ class WhatsAppService {
 
                 const remoteJid = msg.key.remoteJid;
                 const isGroup = remoteJid.endsWith('@g.us');
-                
+
                 // Determine real sender JID
                 let senderJid = isGroup ? (msg.key.participant || msg.participant || remoteJid) : remoteJid;
                 let realPhone = null;
@@ -176,7 +176,7 @@ class WhatsAppService {
                         try {
                             const resolved = await this.sock.signalRepository.lidMapping.getPNForLID(senderJid);
                             if (resolved) senderJid = resolved;
-                        } catch (e) {}
+                        } catch (e) { }
                     }
                 }
 
@@ -187,19 +187,19 @@ class WhatsAppService {
                 }
 
                 // Extract message text from any Baileys message structure
-                const messageText = msg.message?.conversation 
-                    || msg.message?.extendedTextMessage?.text 
-                    || msg.message?.imageMessage?.caption 
-                    || msg.message?.videoMessage?.caption 
-                    || msg.message?.documentMessage?.caption 
-                    || msg.message?.buttonsResponseMessage?.selectedButtonId 
-                    || msg.message?.templateButtonReplyMessage?.selectedId 
-                    || msg.message?.listResponseMessage?.singleSelectReply?.selectedRowId 
-                    || msg.message?.ephemeralMessage?.message?.conversation 
-                    || msg.message?.ephemeralMessage?.message?.extendedTextMessage?.text 
-                    || msg.message?.viewOnceMessage?.message?.conversation 
-                    || msg.message?.viewOnceMessage?.message?.extendedTextMessage?.text 
-                    || msg.message?.viewOnceMessageV2?.message?.conversation 
+                const messageText = msg.message?.conversation
+                    || msg.message?.extendedTextMessage?.text
+                    || msg.message?.imageMessage?.caption
+                    || msg.message?.videoMessage?.caption
+                    || msg.message?.documentMessage?.caption
+                    || msg.message?.buttonsResponseMessage?.selectedButtonId
+                    || msg.message?.templateButtonReplyMessage?.selectedId
+                    || msg.message?.listResponseMessage?.singleSelectReply?.selectedRowId
+                    || msg.message?.ephemeralMessage?.message?.conversation
+                    || msg.message?.ephemeralMessage?.message?.extendedTextMessage?.text
+                    || msg.message?.viewOnceMessage?.message?.conversation
+                    || msg.message?.viewOnceMessage?.message?.extendedTextMessage?.text
+                    || msg.message?.viewOnceMessageV2?.message?.conversation
                     || msg.message?.viewOnceMessageV2?.message?.extendedTextMessage?.text;
 
                 if (messageText) {
@@ -278,14 +278,14 @@ class WhatsAppService {
             try {
                 this.sock.ev.removeAllListeners();
                 if (this.sock.ws && this.sock.ws.readyState === 1) {
-                    await this.sock.logout().catch(() => {});
+                    await this.sock.logout().catch(() => { });
                 } else {
                     this.sock.end(undefined);
                 }
-            } catch (e) {}
+            } catch (e) { }
             this.sock = null;
         }
-        
+
         this.cleanAuthDir();
     }
 
@@ -299,9 +299,9 @@ class WhatsAppService {
                 try {
                     const files = fs.readdirSync(this.authDir);
                     for (const f of files) {
-                        try { fs.unlinkSync(path.join(this.authDir, f)); } catch (_) {}
+                        try { fs.unlinkSync(path.join(this.authDir, f)); } catch (_) { }
                     }
-                } catch (_) {}
+                } catch (_) { }
             }
         }
     }
@@ -344,7 +344,7 @@ class WhatsAppService {
                         return resolved;
                     }
                 }
-            } catch (e) {}
+            } catch (e) { }
             return jid;
         }
         const digits = jid.replace(/\D/g, '');
@@ -453,7 +453,7 @@ class WhatsAppService {
                         try {
                             const urlPath = new URL(cleanSource).pathname;
                             fileName = path.basename(urlPath);
-                        } catch (e) {}
+                        } catch (e) { }
                     }
                 } else {
                     buffer = Buffer.from(cleanSource);
@@ -467,29 +467,29 @@ class WhatsAppService {
             const lowerFileName = (fileName || mediaUrl || '').toLowerCase();
 
             // Detect if Video
-            const isVideo = (mimeType && mimeType.startsWith('video/')) 
-                || lowerFileName.endsWith('.mp4') 
-                || lowerFileName.endsWith('.mov') 
-                || lowerFileName.endsWith('.avi') 
-                || lowerFileName.endsWith('.3gp') 
-                || lowerFileName.endsWith('.mkv') 
+            const isVideo = (mimeType && mimeType.startsWith('video/'))
+                || lowerFileName.endsWith('.mp4')
+                || lowerFileName.endsWith('.mov')
+                || lowerFileName.endsWith('.avi')
+                || lowerFileName.endsWith('.3gp')
+                || lowerFileName.endsWith('.mkv')
                 || lowerFileName.endsWith('.webm');
 
             // Detect if Audio
-            const isAudio = (mimeType && mimeType.startsWith('audio/')) 
-                || lowerFileName.endsWith('.mp3') 
-                || lowerFileName.endsWith('.ogg') 
-                || lowerFileName.endsWith('.wav') 
-                || lowerFileName.endsWith('.m4a') 
-                || lowerFileName.endsWith('.aac') 
+            const isAudio = (mimeType && mimeType.startsWith('audio/'))
+                || lowerFileName.endsWith('.mp3')
+                || lowerFileName.endsWith('.ogg')
+                || lowerFileName.endsWith('.wav')
+                || lowerFileName.endsWith('.m4a')
+                || lowerFileName.endsWith('.aac')
                 || lowerFileName.endsWith('.opus');
 
             // Detect if Document
-            const isDocument = (mimeType && (mimeType.startsWith('application/') || mimeType.startsWith('text/'))) 
-                || lowerFileName.endsWith('.pdf') 
-                || lowerFileName.endsWith('.docx') 
-                || lowerFileName.endsWith('.xlsx') 
-                || lowerFileName.endsWith('.csv') 
+            const isDocument = (mimeType && (mimeType.startsWith('application/') || mimeType.startsWith('text/')))
+                || lowerFileName.endsWith('.pdf')
+                || lowerFileName.endsWith('.docx')
+                || lowerFileName.endsWith('.xlsx')
+                || lowerFileName.endsWith('.csv')
                 || lowerFileName.endsWith('.zip');
 
             let messageOptions;
