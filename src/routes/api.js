@@ -53,6 +53,24 @@ router.get('/qr', async (req, res) => {
     }
 });
 
+// Request 8-digit Pairing Code
+router.post('/pairing-code', async (req, res) => {
+    const { phone } = req.body;
+    if (!phone) {
+        return res.status(400).json({ success: false, message: 'Phone number is required.' });
+    }
+    try {
+        const code = await whatsappService.requestPairingCode(phone);
+        res.json({
+            success: true,
+            code: code,
+            phone: phone
+        });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message || 'Failed to request pairing code.' });
+    }
+});
+
 // Connect / Reconnect
 router.post('/connect', async (req, res) => {
     await whatsappService.connect(true);

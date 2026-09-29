@@ -321,6 +321,47 @@ class WhatsAppService {
     }
 
     /**
+     * Request 8-character Pairing Code for linking by phone number (no camera required)
+     */
+    async requestPairingCode(phoneNumber) {
+        if (!phoneNumber) {
+            throw new Error('Phone number is required');
+        }
+        const cleanPhone = String(phoneNumber).replace(/\D/g, '');
+        if (cleanPhone.length < 10) {
+            throw new Error('Please enter a valid phone number with country code (e.g. 919876543210)');
+        }
+
+        if (!this.sock) {
+            await this.connect(true);
+        }
+
+        // Wait up to 3 seconds for socket to be initialized if connecting
+        for (let i = 0; i < 10; i++) {
+            if (this.sock) break;
+            await new Promise(r => setTimeout(r, 300));
+        }
+
+        if (!this.sock) {
+            throw new Error('Failed to initialize WhatsApp socket');
+        }
+
+        if (this.sock.authState?.creds?.registered) {
+            throw new Error('WhatsApp is already registered. Disconnect first if you want to pair a new device.');
+        }
+
+        try {
+            console.log(`[WhatsApp API] Requesting pairing code for +${cleanPhone}...`);
+            const code = await this.sock.requestPairingCode(cleanPhone);
+            console.log(`[WhatsApp API] Pairing code received: ${code}`);
+            return code;
+        } catch (err) {
+            console.error('[WhatsApp API] Error requesting pairing code:', err);
+            throw err;
+        }
+    }
+
+    /**
      * Resolve incoming phone string into proper WhatsApp JID.
      * Maps LID to phone JID via Baileys Signal mapping if available.
      */
