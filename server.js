@@ -13,11 +13,10 @@ app.use(cors({
     origin: '*',
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'X-API-Key', 'X-Webhook-Signature', 'Accept', 'Bypass-Tunnel-Reminder'],
-    credentials: false
+    credentials: false,
+    preflightContinue: false,
+    optionsSuccessStatus: 204
 }));
-
-// Handle preflight OPTIONS requests for all routes
-app.options('*', cors());
 
 app.use(express.json({ limit: '100mb' }));
 app.use(express.urlencoded({ limit: '100mb', extended: true }));
